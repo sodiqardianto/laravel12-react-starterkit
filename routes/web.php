@@ -14,6 +14,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
     
     Route::resource('menus', MenuController::class);
+    Route::post('/menus/reorder', [MenuController::class, 'reorder']);
 });
 
 require __DIR__.'/settings.php';

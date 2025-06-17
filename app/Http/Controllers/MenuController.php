@@ -8,6 +8,32 @@ use Inertia\Inertia;
 
 class MenuController extends Controller
 {
+    public function reorder(Request $request)
+    {
+        $menus = $request->input('menus', []);
+        
+        foreach ($menus as $index => $menuData) {
+            $menu = Menu::find($menuData['id']);
+            if ($menu) {
+                $menu->order = $index;
+                $menu->parent_id = null;
+                $menu->save();
+
+                if (!empty($menuData['children'])) {
+                    foreach ($menuData['children'] as $childIndex => $childData) {
+                        $child = Menu::find($childData['id']);
+                        if ($child) {
+                            $child->order = $childIndex;
+                            $child->parent_id = $menu->id;
+                            $child->save();
+                        }
+                    }
+                }
+            }
+        }
+
+        return back();
+    }
     /**
      * Display a listing of the resource.
      */
