@@ -6,7 +6,6 @@ import * as LucideIcons from 'lucide-react';
 import { ChevronDown, LucideIcon } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
 
-// DynamicIcon component
 const DynamicIcon = ({ name }: { name: string }) => {
     const Icon = LucideIcons[name as keyof typeof LucideIcons] as LucideIcon | undefined;
     if (!Icon) return <LucideIcons.Circle className="mr-2 h-4 w-4" />;

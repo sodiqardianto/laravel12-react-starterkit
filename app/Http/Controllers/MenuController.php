@@ -8,6 +8,14 @@ use Inertia\Inertia;
 
 class MenuController extends Controller
 {
+    function toPascalCase($string)
+    {
+        // Ganti semua separator (-, _, spasi) menjadi spasi
+        $string = preg_replace('/[-_\s]+/', ' ', $string);
+        // Ubah menjadi Pascal Case
+        return ucwords(str_replace(' ', '', ucwords($string)));
+    }
+
     public function reorder(Request $request)
     {
         $menus = $request->input('menus', []);
@@ -37,28 +45,41 @@ class MenuController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-         $menus = Menu::with('children')
-            ->whereNull('parent_id')
+        $search = $request->query('search');
+
+        $menusQuery = Menu::with('children')->whereNull('parent_id');
+
+        if ($search) {
+            $menusQuery->where(function ($query) use ($search) {
+                $query->where('name', 'LIKE', '%' . $search . '%')
+                      ->orWhereHas('children', function ($query) use ($search) {
+                          $query->where('name', 'LIKE', '%' . $search . '%');
+                      });
+            });
+        }
+
+        $menus = $menusQuery
             ->orderBy('order')
             ->get()
             ->map(function ($menu) {
                 return [
                     'id' => $menu->id,
                     'name' => $menu->name,
-                    'href' => '/' . $menu->href,
+                    'href' => $menu->href,
                     'icon' => $menu->icon,
                     'children' => $menu->children->map(function ($child) {
                         return [
                             'id' => $child->id,
                             'name' => $child->name,
-                            'href' => '/' . $child->href,
+                            'href' => $child->href,
                             'icon' => $child->icon,
                         ];
                     }),
                 ];
             });
+
         return Inertia::render('menus/index', [
             'menus' => $menus,
         ]);
@@ -87,6 +108,12 @@ class MenuController extends Controller
             'href.required' => 'URL menu harus diisi.',
         ]);
 
+        if ($validated['parent_id']) {
+            $validated['order'] = Menu::where('parent_id', $validated['parent_id'])->max('order') + 1;
+        }
+        $validated['order'] = Menu::whereNull('parent_id')->max('order') + 1;
+        $validated['icon'] = $validated['icon'] ? $this->toPascalCase($validated['icon']) : null;
+
         Menu::create($validated);
 
         return back();
@@ -113,7 +140,21 @@ class MenuController extends Controller
      */
     public function update(Request $request, Menu $menu)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string',
+            'href' => 'required|string',
+            'icon' => 'nullable|string',
+            'parent_id' => 'nullable|exists:menus,id',
+        ], [
+            'name.required' => 'Nama menu harus diisi.',
+            'href.required' => 'URL menu harus diisi.',
+        ]);
+
+        $validated['icon'] = $validated['icon'] ? $this->toPascalCase($validated['icon']) : null;
+
+        $menu->update($validated);
+
+        return back();
     }
 
     /**
@@ -121,6 +162,9 @@ class MenuController extends Controller
      */
     public function destroy(Menu $menu)
     {
-        //
+        $menu->delete();
+
+        return back();
     }
 }
+

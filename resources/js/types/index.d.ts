@@ -23,12 +23,23 @@ export interface NavItem {
     children?: NavItem[];
 }
 
+export interface Menu {
+    id: number;
+    name: string;
+    children?: Menu[];
+    href?: string;
+    icon?: string;
+    [key: string]: FormDataConvertible;
+}
+
 export interface SharedData {
     name: string;
     quote: { message: string; author: string };
     auth: Auth;
     ziggy: Config & { location: string };
     sidebarOpen: boolean;
+    menus: Menu[];
+    sidebarMenus: NavItem[];
     [key: string]: unknown;
 }
 

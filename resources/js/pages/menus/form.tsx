@@ -5,46 +5,26 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { capitalizeWords } from '@/lib/utils';
 import { useModalStore } from '@/stores/modal-stores';
-import { useForm, usePage } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
 import { CircleAlert } from 'lucide-react';
 import { FormEvent } from 'react';
-import { toast } from 'sonner';
+import { useMenuForm } from './hooks/use-menu-form';
+import { useMenuSubmit } from './hooks/use-menu-submit';
+import { Menu } from './types/menu.types';
 
-type Menu = {
-    id: number;
-    name: string;
-};
-
-export function MenuForm() {
+export function MenuForm({ menu }: { menu?: Menu }) {
     const { props } = usePage<Partial<{ menus: Menu[] }>>();
     const menus = props.menus ?? [];
 
-    const { data, setData, post, processing, errors } = useForm<{
-        name: string;
-        href: string;
-        icons: string;
-        parent_id: string | null;
-    }>({
-        name: '',
-        href: '',
-        icons: '',
-        parent_id: null,
-    });
+    const formMethods = useMenuForm(menu);
+    const { data, setData, processing, errors } = formMethods;
 
-    const closeModal = useModalStore((state) => state.closeModal);
+    const { submitForm } = useMenuSubmit(menu);
+    const { closeModal } = useModalStore();
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
-        const toastId = toast.loading('Menyimpan menu...');
-        post('/menus', {
-            onSuccess: () => {
-                toast.success('Menu berhasil ditambahkan', { id: toastId });
-                closeModal();
-            },
-            onError: () => {
-                toast.error('Gagal menambahkan menu', { id: toastId });
-            },
-        });
+        submitForm(formMethods);
     };
 
     return (
@@ -85,8 +65,8 @@ export function MenuForm() {
                         </TooltipContent>
                     </Tooltip>
                 </Label>
-                <Input id="icons" value={data.icons} onChange={(e) => setData('icons', e.target.value)} placeholder="Masukan Ikon dari Lucide Ikon" />
-                {errors.icons && <p className="text-sm text-red-500">{errors.icons}</p>}
+                <Input id="icon" value={data.icon} onChange={(e) => setData('icon', e.target.value)} placeholder="Masukan Ikon dari Lucide Ikon" />
+                {errors.icon && <p className="text-sm text-red-500">{errors.icon}</p>}
             </div>
             <div>
                 <Label htmlFor="href">
