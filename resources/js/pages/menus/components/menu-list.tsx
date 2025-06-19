@@ -2,20 +2,9 @@ import { Accordion } from '@/components/ui/accordion';
 import { Card, CardContent } from '@/components/ui/card';
 import { closestCenter, DndContext, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { Dispatch, SetStateAction } from 'react';
 import { useDragHandlers } from '../hooks/use-drag-handlers';
-import { Menu } from '../types/menu.types';
+import { MenuListProps } from '../types/menu.types';
 import { SortableAccordionItem } from './sortable-accordion-item';
-
-interface MenuListProps {
-    menus: Menu[];
-    setMenus: Dispatch<SetStateAction<Menu[]>>;
-    actions: {
-        handleEdit: (menu: Menu) => void;
-        handleDelete: (menu: Menu) => void;
-        handleSubmenuDelete: (submenu: Menu, parentMenuId: number) => void;
-    };
-}
 
 export function MenuList({ menus, setMenus, actions }: MenuListProps) {
     const sensors = useSensors(useSensor(PointerSensor));

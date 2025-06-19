@@ -1,4 +1,4 @@
-import { Menu } from './menu.types';
+import { DragListeners, Menu } from './menu.types';
 
 export type MenuFormData = {
     name: string;
@@ -11,12 +11,10 @@ export interface MenuFormProps {
     menu?: Menu;
 }
 
-export interface FormFieldProps {
-    name: string;
-    label: string;
-    placeholder?: string;
-    required?: boolean;
-    error?: string;
-    value?: string;
-    setData: (field: string, value: string) => void;
+export interface MenuItemContentProps {
+    menu: Menu;
+    listeners: DragListeners;
+    onEdit: (menu: Menu) => void;
+    onDelete: (menu: Menu) => void;
+    isAccordionTrigger: boolean;
 }

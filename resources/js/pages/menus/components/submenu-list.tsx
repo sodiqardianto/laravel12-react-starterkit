@@ -1,17 +1,9 @@
 import { closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { router } from '@inertiajs/react';
-import { Dispatch, SetStateAction } from 'react';
 import { toast } from 'sonner';
-import { Menu } from '../types/menu.types';
+import { SubmenuListProps } from '../types/menu.types';
 import { SortableSubmenuItem } from './sortable-submenu-item';
-
-interface SubmenuListProps {
-    menu: Menu;
-    setMenus: Dispatch<SetStateAction<Menu[]>>;
-    onEdit: (menu: Menu) => void;
-    onDelete: (submenu: Menu, parentMenuId: number) => void;
-}
 
 export function SubmenuList({ menu, setMenus, onEdit, onDelete }: SubmenuListProps) {
     const submenuSensors = useSensors(useSensor(PointerSensor));

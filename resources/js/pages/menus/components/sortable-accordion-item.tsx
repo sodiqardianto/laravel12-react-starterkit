@@ -2,19 +2,9 @@ import { AccordionContent, AccordionItem } from '@/components/ui/accordion';
 import { Card } from '@/components/ui/card';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Dispatch, SetStateAction } from 'react';
-import { Menu } from '../types/menu.types';
+import { SortableAccordionItemProps } from '../types/menu.types';
 import { MenuItemContent } from './menu-item-content';
 import { SubmenuList } from './submenu-list';
-
-interface SortableAccordionItemProps {
-    menu: Menu;
-    setMenus: Dispatch<SetStateAction<Menu[]>>;
-    onEdit: (menu: Menu) => void;
-    onDelete: (menu: Menu) => void;
-    onSubmenuDelete: (submenu: Menu, parentMenuId: number) => void;
-    onSubmenuEdit: (menu: Menu) => void;
-}
 
 export function SortableAccordionItem({ menu, setMenus, onEdit, onDelete, onSubmenuDelete, onSubmenuEdit }: SortableAccordionItemProps) {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: menu.id });

@@ -4,14 +4,7 @@ import { capitalizeWords } from '@/lib/utils';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, PenIcon, TrashIcon } from 'lucide-react';
-import { Menu } from '../types/menu.types';
-
-interface SortableSubmenuItemProps {
-    menu: Menu;
-    parentMenuId: number;
-    onEdit: (menu: Menu) => void;
-    onDelete: (submenu: Menu, parentMenuId: number) => void;
-}
+import { SortableSubmenuItemProps } from '../types/menu.types';
 
 export function SortableSubmenuItem({ menu, parentMenuId, onEdit, onDelete }: SortableSubmenuItemProps) {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: menu.id });

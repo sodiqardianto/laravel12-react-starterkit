@@ -2,15 +2,11 @@ import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui
 import { capitalizeWords, cn } from '@/lib/utils';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import * as LucideIcons from 'lucide-react';
-import { ChevronDown, LucideIcon } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
+import { DynamicIcon } from './dynamic-icon';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
 
-const DynamicIcon = ({ name }: { name: string }) => {
-    const Icon = LucideIcons[name as keyof typeof LucideIcons] as LucideIcon | undefined;
-    if (!Icon) return <LucideIcons.Circle className="mr-2 h-4 w-4" />;
-    return <Icon className="mr-2 h-4 w-4" />;
-};
+const normalizeHref = (href?: string) => `/${(href || '').replace(/^\/+/, '')}`;
 
 export function NavMain({ items = [] }: { items: NavItem[] }) {
     const { url } = usePage();
@@ -21,7 +17,10 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                 item.children && item.children.length > 0 ? (
                     <Collapsible
                         key={item.href || item.name}
-                        defaultOpen={(item.href && url.startsWith(item.href)) || item.children?.some((child) => url.startsWith(child.href))}
+                        defaultOpen={
+                            (item.href && url.startsWith(normalizeHref(item.href))) ||
+                            item.children?.some((child) => url.startsWith(normalizeHref(child.href)))
+                        }
                         className="group/collapsible"
                     >
                         <CollapsibleTrigger
@@ -38,10 +37,10 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                                     <SidebarMenuItem key={child.href || child.name}>
                                         <SidebarMenuButton
                                             asChild
-                                            isActive={url.startsWith(child.href)}
+                                            isActive={url.startsWith(normalizeHref(child.href))}
                                             className="rounded-md px-2 py-1 text-sm transition hover:bg-muted/20"
                                         >
-                                            <Link href={child.href} prefetch>
+                                            <Link href={normalizeHref(child.href)} prefetch>
                                                 {typeof child.icon === 'string' && <DynamicIcon name={child.icon} />}
                                                 <span>{capitalizeWords(child.name)}</span>
                                             </Link>
@@ -55,10 +54,10 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                     <SidebarMenuItem key={item.href || item.name}>
                         <SidebarMenuButton
                             asChild
-                            isActive={url.startsWith(item.href)}
+                            isActive={url.startsWith(normalizeHref(item.href))}
                             className="flex w-full items-center rounded-md px-4 py-2 text-sm font-medium hover:bg-muted/30"
                         >
-                            <Link href={item.href} prefetch>
+                            <Link href={normalizeHref(item.href)} prefetch>
                                 {typeof item.icon === 'string' && <DynamicIcon name={item.icon} />}
                                 <span>{capitalizeWords(item.name)}</span>
                             </Link>

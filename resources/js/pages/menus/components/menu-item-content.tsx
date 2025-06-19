@@ -1,17 +1,9 @@
+import { DynamicIcon } from '@/components/dynamic-icon';
 import { AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { capitalizeWords } from '@/lib/utils';
 import { GripVertical, PenIcon, TrashIcon } from 'lucide-react';
-import { DragListeners, Menu } from '../types/menu.types';
-import { DynamicIcon } from './dynamic-icon';
-
-interface MenuItemContentProps {
-    menu: Menu;
-    listeners: DragListeners;
-    onEdit: (menu: Menu) => void;
-    onDelete: (menu: Menu) => void;
-    isAccordionTrigger: boolean;
-}
+import { MenuItemContentProps } from '../types/form.types';
 
 export function MenuItemContent({ menu, listeners, onEdit, onDelete, isAccordionTrigger }: MenuItemContentProps) {
     const menuContent = (
