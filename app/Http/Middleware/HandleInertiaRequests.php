@@ -38,6 +38,7 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
+        $flashKeys = $request->session()->get('_flash.old', []);
 
         return [
             ...parent::share($request),
@@ -51,6 +52,9 @@ class HandleInertiaRequests extends Middleware
                 'location' => $request->url(),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'flash' => fn () => collect($flashKeys)->mapWithKeys(function ($key) use ($request) {
+                return [$key => $request->session()->get($key)];
+            }),
         ];
     }
 }

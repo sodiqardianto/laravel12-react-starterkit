@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\MenuController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -18,6 +19,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/menus/reorder', [MenuController::class, 'reorder']);
 
     Route::resource('users', UserController::class);
+    Route::resource('roles', RoleController::class);
 });
 
 require __DIR__.'/settings.php';
