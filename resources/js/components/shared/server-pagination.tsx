@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 
 interface ServerPaginationProps {
@@ -19,11 +19,13 @@ interface ServerPaginationProps {
 }
 
 export function ServerPagination({ pagination, filters }: ServerPaginationProps) {
+    const { url } = usePage();
+    const baseUrl = url.split('?')[0];
     const { current_page, last_page, per_page, total, from, to } = pagination;
 
     const changePage = (page: number) => {
         router.get(
-            route('users.index'),
+            baseUrl,
             {
                 ...filters,
                 page,
@@ -37,7 +39,7 @@ export function ServerPagination({ pagination, filters }: ServerPaginationProps)
 
     const changePerPage = (newPerPage: string) => {
         router.get(
-            route('users.index'),
+            baseUrl,
             {
                 ...filters,
                 per_page: newPerPage,
@@ -139,7 +141,7 @@ export function ServerPagination({ pagination, filters }: ServerPaginationProps)
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent side="top">
-                                {[10, 20, 25, 30, 40, 50, 100].map((pageSize) => (
+                                {[10, 20, 50, 100].map((pageSize) => (
                                     <SelectItem key={pageSize} value={pageSize.toString()}>
                                         {pageSize}
                                     </SelectItem>
@@ -216,7 +218,7 @@ export function ServerPagination({ pagination, filters }: ServerPaginationProps)
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent side="top">
-                                {[10, 20, 25, 30, 40, 50, 100].map((pageSize) => (
+                                {[10, 20, 50, 100].map((pageSize) => (
                                     <SelectItem key={pageSize} value={pageSize.toString()}>
                                         {pageSize}
                                     </SelectItem>

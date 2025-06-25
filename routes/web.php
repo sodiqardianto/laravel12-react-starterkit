@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\MenuController;
+use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -19,7 +20,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/menus/reorder', [MenuController::class, 'reorder']);
 
     Route::resource('users', UserController::class);
+    
     Route::resource('roles', RoleController::class);
+    
+    Route::resource('permissions', PermissionController::class);
+    Route::post('/permissions/bulk-delete', [PermissionController::class, 'bulkDelete'])->name('permissions.bulk-delete');
+
 });
 
 require __DIR__.'/settings.php';

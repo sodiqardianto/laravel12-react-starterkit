@@ -12,7 +12,7 @@ import {
 } from '@tanstack/react-table';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import { Button } from '../ui/button';
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '../ui/dropdown-menu';
@@ -34,14 +34,18 @@ interface DataTableProps<TData, TValue> {
         search?: string;
         per_page?: string;
     };
+    onBulkDelete?: (selectedIds: number[]) => void;
 }
 
-export function DataTable<TData, TValue>({ columns, data, pagination, filters }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({ columns, data, pagination, filters, onBulkDelete }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = useState({});
     const [searchValue, setSearchValue] = useState(filters.search || '');
     const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
+
+    const { url } = usePage();
+    const baseUrl = url.split('?')[0];
 
     const table = useReactTable({
         data,
@@ -57,7 +61,6 @@ export function DataTable<TData, TValue>({ columns, data, pagination, filters }:
             rowSelection,
         },
         enableRowSelection: true,
-        // Hilangkan pagination dari React Table
         manualPagination: true,
         pageCount: pagination.last_page,
     });
@@ -70,7 +73,7 @@ export function DataTable<TData, TValue>({ columns, data, pagination, filters }:
         }
         const newTimeout = setTimeout(() => {
             router.get(
-                route('users.index'),
+                baseUrl,
                 {
                     search: value || undefined,
                     per_page: filters.per_page,
@@ -96,31 +99,50 @@ export function DataTable<TData, TValue>({ columns, data, pagination, filters }:
     return (
         <div>
             <div className="flex items-center py-4">
-                <Input placeholder="Cari user ..." value={searchValue} onChange={(event) => handleSearch(event.target.value)} className="max-w-sm" />
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="ml-auto">
-                            Columns
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        {table
-                            .getAllColumns()
-                            .filter((column) => column.getCanHide())
-                            .map((column) => {
-                                return (
-                                    <DropdownMenuCheckboxItem
-                                        key={column.id}
-                                        className="capitalize"
-                                        checked={column.getIsVisible()}
-                                        onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                                    >
-                                        {column.id}
-                                    </DropdownMenuCheckboxItem>
-                                );
-                            })}
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                <Input placeholder="Cari ..." value={searchValue} onChange={(event) => handleSearch(event.target.value)} className="max-w-sm" />
+
+                {table.getAllColumns().length > 3 && (
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline" className="ml-auto">
+                                Columns
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            {table
+                                .getAllColumns()
+                                .filter((column) => column.getCanHide())
+                                .map((column) => {
+                                    return (
+                                        <DropdownMenuCheckboxItem
+                                            key={column.id}
+                                            className="capitalize"
+                                            checked={column.getIsVisible()}
+                                            onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                                        >
+                                            {column.id}
+                                        </DropdownMenuCheckboxItem>
+                                    );
+                                })}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                )}
+
+                {Object.keys(rowSelection).length > 0 && onBulkDelete && (
+                    <Button
+                        variant="destructive"
+                        className="ml-4"
+                        onClick={async () => {
+                            const selectedRows = table.getSelectedRowModel().rows;
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            const selectedIds = selectedRows.map((row) => (row.original as any).id);
+                            await onBulkDelete(selectedIds);
+                            table.resetRowSelection();
+                        }}
+                    >
+                        Hapus Terpilih
+                    </Button>
+                )}
             </div>
 
             <div className="rounded-md border">
