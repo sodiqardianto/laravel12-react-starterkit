@@ -105,7 +105,7 @@ export function DataTable<TData, TValue>({ columns, data, pagination, filters, o
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="outline" className="ml-auto">
-                                Columns
+                                Kolom
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">

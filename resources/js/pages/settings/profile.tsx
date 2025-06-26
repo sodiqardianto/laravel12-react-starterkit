@@ -1,14 +1,17 @@
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Transition } from '@headlessui/react';
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
-import { FormEventHandler } from 'react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
+import { Camera, Trash2, Upload } from 'lucide-react';
+import { FormEventHandler, useRef, useState } from 'react';
 
 import DeleteUser from '@/components/delete-user';
 import HeadingSmall from '@/components/heading-small';
 import InputError from '@/components/input-error';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useInitials } from '@/hooks/use-initials';
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 
@@ -22,20 +25,48 @@ const breadcrumbs: BreadcrumbItem[] = [
 type ProfileForm = {
     name: string;
     email: string;
+    avatar?: File | null;
 };
 
 export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: boolean; status?: string }) {
     const { auth } = usePage<SharedData>().props;
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+    const getInitials = useInitials();
 
-    const { data, setData, patch, errors, processing, recentlySuccessful } = useForm<Required<ProfileForm>>({
+    const { data, setData, post, errors, processing, recentlySuccessful } = useForm<ProfileForm>({
         name: auth.user.name,
         email: auth.user.email,
+        avatar: null,
     });
+
+    const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setData('avatar', file);
+            const reader = new FileReader();
+            reader.onload = () => {
+                setAvatarPreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleAvatarClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleDeleteAvatar = () => {
+        router.delete(route('profile.avatar.delete'), {
+            preserveScroll: true,
+        });
+    };
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
 
-        patch(route('profile.update'), {
+        post(route('profile.update'), {
+            forceFormData: true,
             preserveScroll: true,
         });
     };
@@ -47,6 +78,43 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
             <SettingsLayout>
                 <div className="space-y-6">
                     <HeadingSmall title="Profile information" description="Update your name and email address" />
+
+                    {/* Avatar Section */}
+                    <div className="flex items-center space-x-6">
+                        <div className="relative">
+                            <Avatar className="h-24 w-24">
+                                <AvatarImage
+                                    src={avatarPreview || (auth.user.avatar ? `/storage/${auth.user.avatar}` : undefined)}
+                                    alt={auth.user.name}
+                                />
+                                <AvatarFallback className="text-lg">{getInitials(auth.user.name)}</AvatarFallback>
+                            </Avatar>
+                            <button
+                                type="button"
+                                onClick={handleAvatarClick}
+                                className="absolute right-0 bottom-0 rounded-full bg-primary p-2 text-primary-foreground shadow-lg hover:bg-primary/90"
+                            >
+                                <Camera className="h-4 w-4" />
+                            </button>
+                        </div>
+                        <div className="space-y-2">
+                            <div className="flex space-x-2">
+                                <Button type="button" variant="outline" onClick={handleAvatarClick}>
+                                    <Upload className="mr-2 h-4 w-4" />
+                                    Upload Avatar
+                                </Button>
+                                {auth.user.avatar && (
+                                    <Button type="button" variant="outline" onClick={handleDeleteAvatar}>
+                                        <Trash2 className="mr-2 h-4 w-4" />
+                                        Remove
+                                    </Button>
+                                )}
+                            </div>
+                            <p className="text-sm text-muted-foreground">JPG, PNG or GIF. Max size 2MB.</p>
+                            <InputError message={errors.avatar} />
+                        </div>
+                        <input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" />
+                    </div>
 
                     <form onSubmit={submit} className="space-y-6">
                         <div className="grid gap-2">

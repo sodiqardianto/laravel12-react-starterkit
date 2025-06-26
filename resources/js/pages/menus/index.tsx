@@ -49,7 +49,7 @@ export default function IndexMenu() {
                             <SortableContext items={filteredMenus.map((m) => m.id)} strategy={verticalListSortingStrategy}>
                                 <Accordion type="multiple" className="w-full space-y-2">
                                     {filteredMenus.length === 0 ? (
-                                        <div className="text-center text-muted-foreground">No menu found</div>
+                                        <div className="text-center text-muted-foreground">Menu tidak ditemukan</div>
                                     ) : (
                                         filteredMenus.map((menu) => (
                                             <SortableAccordionItem

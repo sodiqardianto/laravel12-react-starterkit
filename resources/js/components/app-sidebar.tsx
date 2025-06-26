@@ -25,7 +25,7 @@ export function AppSidebar() {
     const menus = props.menus ?? [];
 
     return (
-        <Sidebar collapsible="icon" variant="inset">
+        <Sidebar collapsible="offcanvas" variant="inset">
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
