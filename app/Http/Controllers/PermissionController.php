@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Permission;
 use App\Models\PermissionGroup;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Illuminate\Support\Str;
 
@@ -158,17 +159,41 @@ class PermissionController extends Controller
     /**
      * Remove the specified resource from storage.
      */
+
     public function destroy(string $id)
     {
-        $permission = Permission::findOrFail($id);
-        if ($permission->name === 'Super Admin') {
+        return DB::transaction(function () use ($id) {
+            $permission = Permission::findOrFail($id);
+
+            if ($permission->name === 'Super Admin') {
+                return back()->with([
+                    'error' => 'Permission Super Admin tidak dapat dihapus.',
+                ]);
+            }
+
+            if ($permission->roles()->exists() || $permission->users()->exists()) {
+                return back()->with([
+                    'error' => 'Permission sedang digunakan dan tidak dapat dihapus.',
+                ]);
+            }
+
+            $groupId = $permission->group_id;
+
+            // Hapus permission (soft delete)
+            $permission->delete();
+
+            // Cek apakah tidak ada permission lain di grup (yang tidak soft deleted)
+            $hasRemaining = Permission::where('group_id', $groupId)
+                ->whereNull('deleted_at')
+                ->exists();
+
+            if ($groupId && !$hasRemaining) {
+                PermissionGroup::where('id', $groupId)->delete(); // soft delete
+            }
+
             return back()->with([
-                'error' => 'Permission Super Admin tidak dapat dihapus.',
+                'success' => 'Permission berhasil dihapus.',
             ]);
-        }
-        $permission->delete();
-        return back()->with([
-            'success' => 'Permission berhasil dihapus.',
-        ]);
+        });
     }
 }

@@ -35,14 +35,31 @@ export function useUserActions() {
             onConfirm: async () => {
                 return new Promise<void>((resolve, reject) => {
                     router.delete(`/users/${user.id}`, {
-                        onSuccess: () => {
-                            toast.success('User berhasil dihapus!');
-                            router.reload({ only: ['users'] }); // refresh data users dari backend
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        onSuccess: (page: any) => {
+                            // Access flash data from the response page props
+                            const flashSuccess = page.props.flash?.success;
+                            const flashError = page.props.flash?.error;
+
+                            if (flashSuccess) {
+                                toast.success(flashSuccess);
+                            } else if (flashError) {
+                                toast.error(flashError);
+                                reject(new Error(flashError));
+                                return;
+                            } else {
+                                toast.success('User berhasil dihapus!');
+                            }
+
+                            router.reload({ only: ['users'] });
                             resolve();
                         },
                         onError: (errors) => {
                             console.error('Delete error:', errors);
-                            toast.error('Gagal menghapus user. Silakan coba lagi.');
+
+                            // Handle validation errors or other errors
+                            const firstError = Object.values(errors)[0] as string;
+                            toast.error(firstError || 'Gagal menghapus user. Silakan coba lagi.');
                             reject(errors);
                         },
                     });
@@ -51,9 +68,52 @@ export function useUserActions() {
         });
     };
 
+    const handleBulkDelete = async (ids: number[]) => {
+        return new Promise<void>((resolve, reject) => {
+            confirmDelete({
+                title: 'Hapus Banyak User',
+                description: `Apakah Anda yakin ingin menghapus ${ids.length} user terpilih?`,
+                confirmText: 'Hapus Yang Dipilih',
+                onConfirm: () => {
+                    router.post(
+                        route('users.bulk-delete'),
+                        { ids },
+                        {
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            onSuccess: (page: any) => {
+                                const flashSuccess = page.props.flash?.success;
+                                const flashError = page.props.flash?.error;
+
+                                if (flashSuccess) {
+                                    toast.success(flashSuccess);
+                                } else if (flashError) {
+                                    toast.error(flashError);
+                                    reject(new Error(flashError));
+                                    return;
+                                } else {
+                                    toast.success('User berhasil dihapus!');
+                                }
+
+                                router.reload({ only: ['users'] });
+                                resolve();
+                            },
+                            onError: (errors) => {
+                                console.error('Bulk delete error:', errors);
+                                const firstError = Object.values(errors)[0] as string;
+                                toast.error(firstError || 'Gagal menghapus user.');
+                                reject(errors);
+                            },
+                        },
+                    );
+                },
+            });
+        });
+    };
+
     return {
         handleAdd,
         handleEdit,
         handleDelete,
+        handleBulkDelete,
     };
 }

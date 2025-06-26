@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PermissionGroup;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Role;
@@ -13,7 +14,8 @@ class RoleController extends Controller
      */
     public function index(Request $request)
     {
-        $roles = Role::query();
+        $permissions = PermissionGroup::with('permissions')->get();
+        $roles = Role::with('permissions');
 
         if ($search = $request->query('search')) {
             $roles->where('name', 'like', "%$search%");
@@ -27,6 +29,7 @@ class RoleController extends Controller
         return Inertia::render('roles/index', [
             'roles' => $roles,
             'filters' => $request->only('search', 'per_page'),
+            'permissions' => $permissions
         ]);
     }
 
@@ -45,15 +48,21 @@ class RoleController extends Controller
     {
         $request->validate([
             'name' => 'required|string|unique:roles|min:3|max:255',
+            'permissions' => 'required|array',
+            'permissions.*' => 'exists:permissions,id',
         ], [
             'name.required' => 'Nama harus diisi.',
             'name.min' => 'Nama minimal 3 karakter.',
             'name.unique' => 'Role sudah terdaftar.',
+            'permissions.required' => 'Minimal satu permission harus dipilih.',
+            'permissions.*.exists' => 'Permission tidak ditemukan.',
         ]);
 
-        Role::create([
+        $role = Role::create([
             'name' => $request->name,
         ]);
+
+        $role->syncPermissions($request->permissions);
 
          return back()->with([
             'success' => 'Role berhasil dibuat.',
@@ -83,15 +92,23 @@ class RoleController extends Controller
     {
         $request->validate([
             'name' => 'required|string|min:3|max:255|unique:roles,name,' . $id,
+            'permissions' => 'required|array',
+            'permissions.*' => 'exists:permissions,id',
         ], [
             'name.required' => 'Nama harus diisi.',
             'name.min' => 'Nama minimal 3 karakter.',
             'name.unique' => 'Role sudah terdaftar.',
+            'permissions.required' => 'Minimal satu permission harus dipilih.',
+            'permissions.*.exists' => 'Permission tidak ditemukan.',
         ]);
 
-        Role::find($id)->update([
+        $role = Role::findOrFail($id);
+
+        $role->update([
             'name' => $request->name,
         ]);
+
+        $role->syncPermissions($request->permissions);
 
         return back()->with([
             'success' => 'Role berhasil diperbarui.',

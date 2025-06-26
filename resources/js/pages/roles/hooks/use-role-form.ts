@@ -6,6 +6,7 @@ export const useRoleForm = (role?: Role) => {
     const initialData: RoleFormData = useMemo(
         () => ({
             name: role?.name ?? '',
+            permissions: role?.permissions?.map((p) => p.id) ?? [],
         }),
         [role],
     );

@@ -20,6 +20,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/menus/reorder', [MenuController::class, 'reorder']);
 
     Route::resource('users', UserController::class);
+    Route::post('/users/bulk-delete', [UserController::class, 'bulkDelete'])->name('users.bulk-delete');
     
     Route::resource('roles', RoleController::class);
     

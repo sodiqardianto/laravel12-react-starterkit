@@ -76,7 +76,6 @@ export function PermissionForm({ permission }: PermissionFormProps) {
                     <Label htmlFor="href">
                         Group <span className="text-red-500">*</span>
                     </Label>
-                    {/* <Select value={data.group ? String(data.group) : 'null'} onValueChange={(value) => setData('group', '' + value)}> */}
                     <Select value={data.group ? String(data.group) : ''} onValueChange={(value) => setData('group', '' + value)}>
                         <SelectTrigger>
                             <SelectValue placeholder="Pilih Group" />

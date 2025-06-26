@@ -6,13 +6,15 @@ export function GlobalModal() {
 
     return (
         <Dialog open={isOpen} onOpenChange={(v) => !v && closeModal()}>
-            <DialogContent className="sm:max-w-xl">
-                <DialogHeader>
+            <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-xl">
+                <DialogHeader className="shrink-0">
                     {title && <DialogTitle>{title}</DialogTitle>}
                     {description && <DialogDescription>{description}</DialogDescription>}
                 </DialogHeader>
-                <div className="py-2">{content}</div>
-                {footer && <DialogFooter>{footer}</DialogFooter>}
+
+                <div className="grow overflow-y-auto py-2">{content}</div>
+
+                {footer && <DialogFooter className="shrink-0">{footer}</DialogFooter>}
             </DialogContent>
         </Dialog>
     );

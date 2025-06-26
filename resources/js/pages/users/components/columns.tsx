@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { capitalizeWords } from '@/lib/utils';
 import { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown, Pen, Trash2 } from 'lucide-react';
 import { ReactNode } from 'react';
@@ -69,6 +70,18 @@ export const createColumns = ({ onEdit, onDelete }: ActionsProps): ColumnDef<Use
             return (
                 <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
                     Email
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            );
+        },
+    },
+    {
+        accessorKey: 'role',
+        accessorFn: (row) => capitalizeWords(row.roles[0]?.name) ?? '-',
+        header: ({ column }) => {
+            return (
+                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+                    Role
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             );

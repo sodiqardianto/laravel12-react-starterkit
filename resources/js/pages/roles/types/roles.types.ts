@@ -1,9 +1,18 @@
 export interface Role {
     id: number;
     name: string;
+    permissions: {
+        id: number;
+        name: string;
+    }[];
 }
 
-export type RoleFormData = Pick<Role, 'name'>;
+export interface RoleFormData {
+    name: string;
+    permissions: number[];
+
+    [key: string]: string | number[];
+}
 
 export interface RoleProps {
     roles: {
@@ -14,4 +23,15 @@ export interface RoleProps {
         next_page_url?: string;
         prev_page_url?: string;
     };
+}
+
+export interface Permission {
+    id: number;
+    name: string;
+}
+
+export interface PermissionGroup {
+    id: number;
+    name: string;
+    permissions: Permission[];
 }

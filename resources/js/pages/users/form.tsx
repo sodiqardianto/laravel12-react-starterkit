@@ -3,12 +3,19 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useModalStore } from '@/stores/modal-stores';
 // import { usePage } from '@inertiajs/react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { capitalizeWords } from '@/lib/utils';
+import { usePage } from '@inertiajs/react';
 import { FormEvent } from 'react';
+import { Role } from '../roles/types/roles.types';
 import { useUserForm } from './hooks/use-user-form';
 import { useUserSubmit } from './hooks/use-user-submit';
 import { User } from './types/users.types';
 
 export function UserForm({ user }: { user?: User }) {
+    const { props } = usePage<Partial<{ roles: Role[] }>>();
+    const roles = props.roles ?? [];
+
     const formMethods = useUserForm(user);
     const { data, setData, processing, errors } = formMethods;
 
@@ -36,6 +43,25 @@ export function UserForm({ user }: { user?: User }) {
                 </Label>
                 <Input id="email" value={data.email} onChange={(e) => setData('email', e.target.value)} placeholder="Masukan Email" />
                 {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
+            </div>
+
+            <div>
+                <Label htmlFor="role">
+                    Role <span className="text-red-500">*</span>
+                </Label>
+                <Select value={data.role ? String(data.role) : ''} onValueChange={(value) => setData('role', '' + value)}>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Pilih Role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {roles.map((role) => (
+                            <SelectItem key={role.id} value={String(role.name)}>
+                                {capitalizeWords(role.name)}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                {errors.role && <p className="text-sm text-red-500">{errors.role}</p>}
             </div>
 
             {!user && (
