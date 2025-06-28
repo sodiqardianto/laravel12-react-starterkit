@@ -1,6 +1,7 @@
 import { DataTable } from '@/components/shared/data-table';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { usePermission } from '@/hooks/use-permissions';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 import { PaginatedResponse } from '@/types/pagination.types';
@@ -17,14 +18,19 @@ export default function IndexPermission() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { permissions, filters } = usePage<{ permissions: PaginatedResponse<Permission>; filters: any }>().props;
     const permissionActions = usePermissionActions();
+    const canCreate = usePermission('create_permissions');
+    const canEdit = usePermission('edit_permissions');
+    const canDelete = usePermission('delete_permissions');
 
     const columns = useMemo(
         () =>
             createColumns({
+                canEdit,
+                canDelete,
                 onEdit: permissionActions.handleEdit,
                 onDelete: permissionActions.handleDelete,
             }),
-        [permissionActions.handleEdit, permissionActions.handleDelete],
+        [permissionActions.handleEdit, permissionActions.handleDelete, canEdit, canDelete],
     );
 
     return (
@@ -34,10 +40,12 @@ export default function IndexPermission() {
                 <h1 className="text-2xl font-semibold tracking-tight">Manajemen Permission</h1>
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <div></div>
-                    <Button onClick={permissionActions.handleAdd} className="mt-2 sm:mt-0">
-                        <Plus className="mr-2 h-4 w-4" />
-                        Tambah Permission
-                    </Button>
+                    {canCreate && (
+                        <Button onClick={permissionActions.handleAdd} className="mt-2 sm:mt-0">
+                            <Plus className="mr-2 h-4 w-4" />
+                            Tambah Permission
+                        </Button>
+                    )}
                 </div>
 
                 <Card>
@@ -55,6 +63,7 @@ export default function IndexPermission() {
                             }}
                             filters={filters}
                             onBulkDelete={permissionActions.handleBulkDelete}
+                            canDelete={canDelete}
                         />
                     </CardContent>
                 </Card>

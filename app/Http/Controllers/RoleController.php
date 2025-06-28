@@ -9,6 +9,14 @@ use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
 {
+    public function bulkDelete(Request $request)
+    {
+        $ids = $request->input('ids', []);
+        Role::whereIn('id', $ids)->delete();
+
+        return back()->with('success', 'Berhasil menghapus data terpilih.');
+    }
+
     /**
      * Display a listing of the resource.
      */

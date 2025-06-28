@@ -28,6 +28,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::middleware('permission:view_roles')->group(function () {
         Route::resource('roles', RoleController::class);
+        Route::post('/roles/bulk-delete', [RoleController::class, 'bulkDelete'])->name('roles.bulk-delete');
     });
 
     Route::middleware('permission:view_permissions')->group(function () {

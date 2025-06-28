@@ -1,6 +1,7 @@
 import { DataTable } from '@/components/shared/data-table';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { usePermission } from '@/hooks/use-permissions';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 import { PaginatedResponse } from '@/types/pagination.types';
@@ -17,14 +18,19 @@ export default function IndexRole() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { roles, filters } = usePage<{ roles: PaginatedResponse<Role>; filters: any }>().props;
     const roleActions = useRoleActions();
+    const canCreate = usePermission('create_roles');
+    const canEdit = usePermission('edit_roles');
+    const canDelete = usePermission('delete_roles');
 
     const columns = useMemo(
         () =>
             createColumns({
+                canEdit,
+                canDelete,
                 onEdit: roleActions.handleEdit,
                 onDelete: roleActions.handleDelete,
             }),
-        [roleActions.handleEdit, roleActions.handleDelete],
+        [roleActions.handleEdit, roleActions.handleDelete, canEdit, canDelete],
     );
 
     return (
@@ -34,10 +40,12 @@ export default function IndexRole() {
                 <h1 className="text-2xl font-semibold tracking-tight">Manajemen Role</h1>
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <div></div>
-                    <Button onClick={roleActions.handleAdd} className="mt-2 sm:mt-0">
-                        <Plus className="mr-2 h-4 w-4" />
-                        Tambah Role
-                    </Button>
+                    {canCreate && (
+                        <Button onClick={roleActions.handleAdd} className="mt-2 sm:mt-0">
+                            <Plus className="mr-2 h-4 w-4" />
+                            Tambah Role
+                        </Button>
+                    )}
                 </div>
 
                 <Card>
@@ -54,6 +62,8 @@ export default function IndexRole() {
                                 to: roles.to,
                             }}
                             filters={filters}
+                            onBulkDelete={roleActions.handleBulkDelete}
+                            canDelete={canDelete}
                         />
                     </CardContent>
                 </Card>

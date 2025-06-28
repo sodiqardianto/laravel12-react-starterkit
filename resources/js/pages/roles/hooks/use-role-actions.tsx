@@ -68,9 +68,52 @@ export function useRoleActions() {
         });
     };
 
+    const handleBulkDelete = async (ids: number[]) => {
+        return new Promise<void>((resolve, reject) => {
+            confirmDelete({
+                title: 'Hapus Banyak Role',
+                description: `Apakah Anda yakin ingin menghapus ${ids.length} role terpilih?`,
+                confirmText: 'Hapus Yang Dipilih',
+                onConfirm: () => {
+                    router.post(
+                        route('roles.bulk-delete'),
+                        { ids },
+                        {
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            onSuccess: (page: any) => {
+                                const flashSuccess = page.props.flash?.success;
+                                const flashError = page.props.flash?.error;
+
+                                if (flashSuccess) {
+                                    toast.success(flashSuccess);
+                                } else if (flashError) {
+                                    toast.error(flashError);
+                                    reject(new Error(flashError));
+                                    return;
+                                } else {
+                                    toast.success('Role berhasil dihapus!');
+                                }
+
+                                router.reload({ only: ['roles'] });
+                                resolve();
+                            },
+                            onError: (errors) => {
+                                console.error('Bulk delete error:', errors);
+                                const firstError = Object.values(errors)[0] as string;
+                                toast.error(firstError || 'Gagal menghapus role.');
+                                reject(errors);
+                            },
+                        },
+                    );
+                },
+            });
+        });
+    };
+
     return {
         handleAdd,
         handleEdit,
         handleDelete,
+        handleBulkDelete,
     };
 }

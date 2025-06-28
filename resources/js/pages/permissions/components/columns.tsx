@@ -21,11 +21,13 @@ const TooltipButton = ({ children, tooltip, onClick, className = '', title, vari
 );
 
 interface ActionsProps {
+    canEdit: boolean;
+    canDelete: boolean;
     onEdit: (permission: Permission) => void;
     onDelete: (permission: Permission) => void;
 }
 
-export const createColumns = ({ onEdit, onDelete }: ActionsProps): ColumnDef<Permission>[] => [
+export const createColumns = ({ canEdit, canDelete, onEdit, onDelete }: ActionsProps): ColumnDef<Permission>[] => [
     {
         id: 'select',
         header: ({ table }) => (
@@ -70,31 +72,40 @@ export const createColumns = ({ onEdit, onDelete }: ActionsProps): ColumnDef<Per
         enableHiding: false,
         cell: ({ row }) => {
             const permission = row.original;
+
+            if (!canEdit && !canDelete) {
+                return null;
+            }
+
             return (
                 <div className="flex items-center gap-2">
-                    <TooltipButton
-                        tooltip="Edit"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onEdit(permission);
-                        }}
-                        className="h-8 w-8 p-0 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
-                        title="Edit Permission"
-                    >
-                        <Pen className="h-4 w-4" />
-                    </TooltipButton>
+                    {canEdit && (
+                        <TooltipButton
+                            tooltip="Edit"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onEdit(permission);
+                            }}
+                            className="h-8 w-8 p-0 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
+                            title="Edit Permission"
+                        >
+                            <Pen className="h-4 w-4" />
+                        </TooltipButton>
+                    )}
 
-                    <TooltipButton
-                        tooltip="Delete"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onDelete(permission);
-                        }}
-                        className="h-8 w-8 p-0 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                        title="Delete Permission"
-                    >
-                        <Trash2 className="h-4 w-4" />
-                    </TooltipButton>
+                    {canDelete && (
+                        <TooltipButton
+                            tooltip="Delete"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onDelete(permission);
+                            }}
+                            className="h-8 w-8 p-0 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                            title="Delete Permission"
+                        >
+                            <Trash2 className="h-4 w-4" />
+                        </TooltipButton>
+                    )}
                 </div>
             );
         },
