@@ -32,12 +32,14 @@ const TooltipButton = ({ children, tooltip, onClick, className = '', title, vari
 );
 
 interface ActionsProps {
+    canEdit: boolean;
+    canDelete: boolean;
     onEdit: (user: User) => void;
     onDelete: (user: User) => void;
 }
 
 // Fungsi untuk membuat columns dengan props
-export const createColumns = ({ onEdit, onDelete }: ActionsProps): ColumnDef<User>[] => [
+export const createColumns = ({ canEdit, canDelete, onEdit, onDelete }: ActionsProps): ColumnDef<User>[] => [
     {
         id: 'select',
         header: ({ table }) => (
@@ -92,31 +94,40 @@ export const createColumns = ({ onEdit, onDelete }: ActionsProps): ColumnDef<Use
         enableHiding: false,
         cell: ({ row }) => {
             const user = row.original;
+
+             if (!canEdit && !canDelete) {
+                return null;
+            }
+            
             return (
                 <div className="flex items-center gap-2">
-                    <TooltipButton
-                        tooltip="Edit"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onEdit(user);
-                        }}
-                        className="h-8 w-8 p-0 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
-                        title="Edit User"
-                    >
-                        <Pen className="h-4 w-4" />
-                    </TooltipButton>
+                    {canEdit && (
+                        <TooltipButton
+                            tooltip="Edit"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onEdit(user);
+                            }}
+                            className="h-8 w-8 p-0 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
+                            title="Edit User"
+                        >
+                            <Pen className="h-4 w-4" />
+                        </TooltipButton>
+                    )}
 
-                    <TooltipButton
-                        tooltip="Delete"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onDelete(user);
-                        }}
-                        className="h-8 w-8 p-0 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                        title="Delete User"
-                    >
-                        <Trash2 className="h-4 w-4" />
-                    </TooltipButton>
+                    {canDelete && (
+                        <TooltipButton
+                            tooltip="Delete"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onDelete(user);
+                            }}
+                            className="h-8 w-8 p-0 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                            title="Delete User"
+                        >
+                            <Trash2 className="h-4 w-4" />
+                        </TooltipButton>
+                    )}
                 </div>
             );
         },

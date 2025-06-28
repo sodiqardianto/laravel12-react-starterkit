@@ -16,5 +16,8 @@ export interface MenuItemContentProps {
     listeners: DragListeners;
     onEdit: (menu: Menu) => void;
     onDelete: (menu: Menu) => void;
+    canEdit: boolean;
+    canDelete: boolean;
+    canSort: boolean;
     isAccordionTrigger: boolean;
 }

@@ -16,16 +16,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
     
-    Route::resource('menus', MenuController::class);
-    Route::post('/menus/reorder', [MenuController::class, 'reorder']);
+    Route::middleware('permission:view_menus')->group(function () {
+        Route::resource('menus', MenuController::class);
+        Route::post('/menus/reorder', [MenuController::class, 'reorder']);
+    });
 
-    Route::resource('users', UserController::class);
-    Route::post('/users/bulk-delete', [UserController::class, 'bulkDelete'])->name('users.bulk-delete');
-    
-    Route::resource('roles', RoleController::class);
-    
-    Route::resource('permissions', PermissionController::class);
-    Route::post('/permissions/bulk-delete', [PermissionController::class, 'bulkDelete'])->name('permissions.bulk-delete');
+    Route::middleware('permission:view_users')->group(function () {
+        Route::resource('users', UserController::class);
+        Route::post('/users/bulk-delete', [UserController::class, 'bulkDelete'])->name('users.bulk-delete');
+    });
+
+    Route::middleware('permission:view_roles')->group(function () {
+        Route::resource('roles', RoleController::class);
+    });
+
+    Route::middleware('permission:view_permissions')->group(function () {
+        Route::resource('permissions', PermissionController::class);
+        Route::post('/permissions/bulk-delete', [PermissionController::class, 'bulkDelete'])->name('permissions.bulk-delete');
+    });
 
 });
 

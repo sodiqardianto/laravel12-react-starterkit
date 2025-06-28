@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { SubmenuListProps } from '../types/menu.types';
 import { SortableSubmenuItem } from './sortable-submenu-item';
 
-export function SubmenuList({ menu, setMenus, onEdit, onDelete }: SubmenuListProps) {
+export function SubmenuList({ menu, setMenus, onEdit, onDelete, canEdit, canDelete, canSort }: SubmenuListProps) {
     const submenuSensors = useSensors(useSensor(PointerSensor));
 
     const handleSubmenuDragEnd = (event: DragEndEvent) => {
@@ -45,7 +45,16 @@ export function SubmenuList({ menu, setMenus, onEdit, onDelete }: SubmenuListPro
         <DndContext sensors={submenuSensors} collisionDetection={closestCenter} onDragEnd={handleSubmenuDragEnd}>
             <SortableContext items={menu.children?.map((c) => c.id) || []} strategy={verticalListSortingStrategy}>
                 {menu.children?.map((child) => (
-                    <SortableSubmenuItem key={child.id} menu={child} parentMenuId={menu.id} onEdit={onEdit} onDelete={onDelete} />
+                    <SortableSubmenuItem
+                        key={child.id}
+                        menu={child}
+                        parentMenuId={menu.id}
+                        onEdit={onEdit}
+                        onDelete={onDelete}
+                        canEdit={canEdit}
+                        canDelete={canDelete}
+                        canSort={canSort}
+                    />
                 ))}
             </SortableContext>
         </DndContext>

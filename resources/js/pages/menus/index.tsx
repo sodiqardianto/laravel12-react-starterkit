@@ -2,6 +2,7 @@ import { Accordion } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { usePermission } from '@/hooks/use-permissions';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem, SharedData } from '@/types';
 import { closestCenter, DndContext, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
@@ -27,6 +28,10 @@ export default function IndexMenu() {
 
     const { searchTerm, filteredMenus, handleSearchChange } = useMenuSearch(menus);
     const menuActions = useMenuActions(setMenus);
+    const canCreate = usePermission('create_menus');
+    const canEdit = usePermission('edit_menus');
+    const canDelete = usePermission('delete_menus');
+    const canSort = usePermission('sort_menus');
     const sensors = useSensors(useSensor(PointerSensor));
     const { handleDragEnd } = useDragHandlers(menus, setMenus);
 
@@ -37,35 +42,64 @@ export default function IndexMenu() {
                 <h1 className="text-2xl font-semibold tracking-tight">Manajemen Menu</h1>
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <Input placeholder="Cari menu..." className="w-full sm:w-[300px]" value={searchTerm} onChange={handleSearchChange} />
-                    <Button onClick={menuActions.handleAdd} className="mt-2 sm:mt-0">
-                        <Plus className="mr-2 h-4 w-4" />
-                        Tambah Menu
-                    </Button>
+                    {canCreate && (
+                        <Button onClick={menuActions.handleAdd} className="mt-2 sm:mt-0">
+                            <Plus className="mr-2 h-4 w-4" />
+                            Tambah Menu
+                        </Button>
+                    )}
                 </div>
 
                 <Card>
                     <CardContent className="pt-6">
-                        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                            <SortableContext items={filteredMenus.map((m) => m.id)} strategy={verticalListSortingStrategy}>
-                                <Accordion type="multiple" className="w-full space-y-2">
-                                    {filteredMenus.length === 0 ? (
-                                        <div className="text-center text-muted-foreground">Menu tidak ditemukan</div>
-                                    ) : (
-                                        filteredMenus.map((menu) => (
-                                            <SortableAccordionItem
-                                                key={menu.id}
-                                                menu={menu}
-                                                setMenus={setMenus}
-                                                onEdit={menuActions.handleEdit}
-                                                onDelete={menuActions.handleDelete}
-                                                onSubmenuDelete={menuActions.handleSubmenuDelete}
-                                                onSubmenuEdit={menuActions.handleEdit}
-                                            />
-                                        ))
-                                    )}
-                                </Accordion>
-                            </SortableContext>
-                        </DndContext>
+                        {canSort ? (
+                            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                                <SortableContext items={filteredMenus.map((m) => m.id)} strategy={verticalListSortingStrategy}>
+                                    <Accordion type="multiple" className="w-full space-y-2">
+                                        {filteredMenus.length === 0 ? (
+                                            <div className="text-center text-muted-foreground">Menu tidak ditemukan</div>
+                                        ) : (
+                                            filteredMenus.map((menu) => (
+                                                <SortableAccordionItem
+                                                    key={menu.id}
+                                                    menu={menu}
+                                                    setMenus={setMenus}
+                                                    canEdit={canEdit}
+                                                    canDelete={canDelete}
+                                                    canSort={canSort} // Pass permission to child component
+                                                    onEdit={menuActions.handleEdit}
+                                                    onDelete={menuActions.handleDelete}
+                                                    onSubmenuDelete={menuActions.handleSubmenuDelete}
+                                                    onSubmenuEdit={menuActions.handleEdit}
+                                                />
+                                            ))
+                                        )}
+                                    </Accordion>
+                                </SortableContext>
+                            </DndContext>
+                        ) : (
+                            // Static list without drag and drop functionality
+                            <Accordion type="multiple" className="w-full space-y-2">
+                                {filteredMenus.length === 0 ? (
+                                    <div className="text-center text-muted-foreground">Menu tidak ditemukan</div>
+                                ) : (
+                                    filteredMenus.map((menu) => (
+                                        <SortableAccordionItem
+                                            key={menu.id}
+                                            menu={menu}
+                                            setMenus={setMenus}
+                                            canEdit={canEdit}
+                                            canDelete={canDelete}
+                                            canSort={canSort} // Pass permission to child component
+                                            onEdit={menuActions.handleEdit}
+                                            onDelete={menuActions.handleDelete}
+                                            onSubmenuDelete={menuActions.handleSubmenuDelete}
+                                            onSubmenuEdit={menuActions.handleEdit}
+                                        />
+                                    ))
+                                )}
+                            </Accordion>
+                        )}
                     </CardContent>
                 </Card>
             </div>

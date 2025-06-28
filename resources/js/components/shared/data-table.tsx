@@ -35,9 +35,10 @@ interface DataTableProps<TData, TValue> {
         per_page?: string;
     };
     onBulkDelete?: (selectedIds: number[]) => void;
+    canDelete?: boolean;
 }
 
-export function DataTable<TData, TValue>({ columns, data, pagination, filters, onBulkDelete }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({ columns, data, pagination, filters, onBulkDelete, canDelete }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = useState({});
@@ -128,7 +129,7 @@ export function DataTable<TData, TValue>({ columns, data, pagination, filters, o
                     </DropdownMenu>
                 )}
 
-                {Object.keys(rowSelection).length > 0 && onBulkDelete && (
+                {Object.keys(rowSelection).length > 0 && onBulkDelete && canDelete && (
                     <Button
                         variant="destructive"
                         className="ml-4"

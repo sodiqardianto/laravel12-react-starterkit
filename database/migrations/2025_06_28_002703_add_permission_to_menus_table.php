@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('permission_groups', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->timestamps();
-            $table->softDeletes();
+        Schema::table('menus', function (Blueprint $table) {
+            $table->string('permission')->nullable()->after('icon');
         });
     }
 
@@ -24,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('permission_groups');
+        Schema::table('menus', function (Blueprint $table) {
+            $table->dropColumn('permission');
+        });
     }
 };

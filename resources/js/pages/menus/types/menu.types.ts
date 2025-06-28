@@ -29,6 +29,9 @@ export interface SortableAccordionItemProps {
     setMenus: Dispatch<SetStateAction<Menu[]>>;
     onEdit: (menu: Menu) => void;
     onDelete: (menu: Menu) => void;
+    canEdit: boolean;
+    canDelete: boolean;
+    canSort: boolean;
     onSubmenuDelete: (submenu: Menu, parentMenuId: number) => void;
     onSubmenuEdit: (menu: Menu) => void;
 }
@@ -38,6 +41,9 @@ export interface SortableSubmenuItemProps {
     parentMenuId: number;
     onEdit: (menu: Menu) => void;
     onDelete: (submenu: Menu, parentMenuId: number) => void;
+    canEdit: boolean;
+    canDelete: boolean;
+    canSort: boolean;
 }
 
 export interface SubmenuListProps {
@@ -45,4 +51,7 @@ export interface SubmenuListProps {
     setMenus: Dispatch<SetStateAction<Menu[]>>;
     onEdit: (menu: Menu) => void;
     onDelete: (submenu: Menu, parentMenuId: number) => void;
+    canEdit: boolean;
+    canDelete: boolean;
+    canSort: boolean;
 }
